@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Review</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    main {
+      padding: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .star-rating {
+      display: inline-flex;
+      gap: 0.2rem;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    .star {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      background-color: #ccc;
+      mask: url('https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/star-fill.svg') no-repeat center;
+      -webkit-mask: url('https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/star-fill.svg') no-repeat center;
+      mask-size: cover;
+      -webkit-mask-size: cover;
+    }
+
+    .star.filled {
+      background-color: gold;
+    }
+
+    .star.partial {
+      background: linear-gradient(to right, gold 0%, gold var(--fill), #ccc var(--fill), #ccc 100%);
+    }
+
+    .cover-container {
+      flex: 0 0 auto;
+      position: relative;
+      width: 200px;
+      height: 300px;
+    }
+
+    #book-cover {
+      max-height: 100%;
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    #cover-spinner {
+      position: absolute;
+      top: 45%;
+      left: 45%;
+    }
+
+    .review-container {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .review {
+      margin-top: 1rem;
+      line-height: 1.6;
+    }
+
+    #author-line {
+      font-size: 1.1rem;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .cover-container {
+        text-align: center;
+        width: 100%;
+        height: auto;
+      }
+
+      #book-cover {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .review-container {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main>
+    <div class="cover-container">
+      <div id="cover-spinner" class="spinner-border text-secondary" role="status"></div>
+      <img id="book-cover" />
+    </div>
+
+    <div class="review-container">
+      <h1 id="book-title">Book Title</h1>
+      <div id="author-line"></div>
+      <p>
+        <span class="label">Rating:</span>
+        <span id="rating-text">Loading...</span>
+        <span class="star-rating" id="star-rating"></span>
+      </p>
+
+      <h2>Book Summary</h2>
+      <div class="review" id="summary">Loading summary...</div>
+
+      <h2>My Review</h2>
+      <div class="review" id="review">Loading review...</div>
+
+      <h2>Who is this book for</h2>
+      <div class="review" id="audience">Loading audience...</div>
+    </div>
+  </main>
+
+  <script>
+    const sheetId = '1fF7P_rtLpgdr6LadFXJ3ZhjvNVw3TCBHnHi0q4XEx9I';
+    const apiKey = 'AIzaSyCFcup6gSBuwCFuwNKF-gIkrK2f_6nfD0g';
+    const isbnDbKey = '62658_3089370964ba71ca03bd57a1cdfad0bd';
+
+    const titleParam = new URLSearchParams(window.location.search).get('title');
+    const decodedTitle = decodeURIComponent(titleParam);
+    document.getElementById('book-title').textContent = decodedTitle;
+
+    const reviewsRange = 'Reviews!A2:E';
+    const booksRange = 'Books!A2:H';
+    const logRange = 'Log!A2:H';
+
+    function clean(str) {
+      return (str || "").trim().toLowerCase();
+    }
+
+    function formatReviewText(text) {
+      return (text || '').replace(/\n/g, '<br>');
+    }
+
+    function showCover(src) {
+      const coverImg = document.getElementById("book-cover");
+      const spinner = document.getElementById("cover-spinner");
+
+      coverImg.onload = () => {
+        spinner.style.display = "none";
+        coverImg.style.display = "block";
+      };
+      coverImg.onerror = () => {
+        spinner.style.display = "none";
+        coverImg.style.display = "none";
+      };
+
+      coverImg.src = src;
+    }
+
+    async function fetchSheetData(range) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.values || [];
+    }
+
+    async function fetchISBNFromOpenLibrary(title) {
+      const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const doc = data.docs.find(d => d.isbn?.length);
+      const isbn13 = doc?.isbn?.find(code => code.length === 13 && code.startsWith("978"));
+      return isbn13 || null;
+    }
+
+    async function tryLoadCover(isbn, books, title, triedFallback = false) {
+      const placeholder = "https://via.placeholder.com/200x300?text=";
+
+      if (!isbn) {
+        showCover(placeholder + "No+ISBN");
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://api2.isbndb.com/book/${isbn}`, {
+          headers: { "Authorization": isbnDbKey }
+        });
+        const data = await res.json();
+
+        if (data.book?.image) {
+          showCover(data.book.image);
+        } else if (!triedFallback) {
+          const altEntry = books.find(row =>
+            clean(row[1]) === clean(title) && row[3] && row[3] !== isbn
+          );
+          if (altEntry) {
+            await tryLoadCover(altEntry[3], books, title, true);
+          } else {
+            showCover(placeholder + "No+Cover");
+          }
+        } else {
+          showCover(placeholder + "No+Cover");
+        }
+      } catch (error) {
+        console.error("❌ ISBNdb fetch failed:", error);
+        showCover(placeholder + "No+Cover");
+      }
+    }
+
+    async function loadBookData() {
+      const [reviews, books, log] = await Promise.all([
+        fetchSheetData(reviewsRange),
+        fetchSheetData(booksRange),
+        fetchSheetData(logRange)
+      ]);
+
+      const reviewEntry = reviews.find(row => clean(row[0]) === clean(decodedTitle));
+      const bookEntry = books.find(row => clean(row[1]) === clean(decodedTitle));
+      const logEntry = log.find(row => clean(row[0]) === clean(decodedTitle));
+
+      let isbn = bookEntry && bookEntry[3];
+      if (!isbn) {
+        console.log("🔍 ISBN not found in sheet, querying OpenLibrary...");
+        isbn = await fetchISBNFromOpenLibrary(decodedTitle);
+        console.log("📖 Found fallback ISBN:", isbn);
+      }
+
+      const rating = logEntry && logEntry[6];
+      const ratingTextEl = document.getElementById('rating-text');
+      const starContainer = document.getElementById('star-rating');
+
+      if (rating) {
+        const ratingFloat = parseFloat(rating);
+        ratingTextEl.textContent = `${ratingFloat} / 10`;
+
+        for (let i = 1; i <= 10; i++) {
+          const star = document.createElement("div");
+          star.classList.add("star");
+
+          if (i <= Math.floor(ratingFloat)) {
+            star.classList.add("filled");
+          } else if (i === Math.ceil(ratingFloat)) {
+            const fraction = ratingFloat % 1;
+            star.classList.add("partial");
+            star.style.setProperty('--fill', `${fraction * 100}%`);
+          }
+
+          starContainer.appendChild(star);
+        }
+      } else {
+        ratingTextEl.textContent = "Not rated";
+      }
+
+      if (bookEntry?.[2]) {
+        const authorName = bookEntry[2];
+        const encodedAuthor = encodeURIComponent(authorName);
+        document.getElementById('author-line').innerHTML = `by <a href="author.html?name=${encodedAuthor}">${authorName}</a>`;
+      }
+      document.getElementById('summary').innerHTML = reviewEntry?.[2] ? formatReviewText(reviewEntry[2]) : 'No summary available.';
+      document.getElementById('review').innerHTML = reviewEntry?.[3] ? formatReviewText(reviewEntry[3]) : 'No review available.';
+      document.getElementById('audience').innerHTML = reviewEntry?.[4] ? formatReviewText(reviewEntry[4]) : 'No audience info available.';
+
+      await tryLoadCover(isbn, books, decodedTitle);
+    }
+
+    loadBookData();
+  </script>
+
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
+  <div id="footer-placeholder"></div>
+  <script>
+    fetch("footer.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+      });
+  </script>
+</body>
+</html>
