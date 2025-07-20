@@ -1,10 +1,9 @@
 ---
-layout: default
+layout: custom
 title: Home
 ---
- 
- <div id="header-placeholder"></div>
 
+ 
   <main class="container">
     <h1>Books I've Read</h1>
     <table id="books-table" class="table">
@@ -103,22 +102,7 @@ title: Home
     fetchSheetData(logRange).then(renderBooksTable);
   </script>
 
- <script>
-  fetch("header.html")
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById("header-placeholder").innerHTML = data;
-
-      // ✅ Run this *after* header.html is injected
-      if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-        const header = document.querySelector("header");
-        if (header) {
-          header.classList.add("dev");
-        }
-      }
-    });
-</script>
-
+ 
   <!-- jQuery (required for DataTables) -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
@@ -126,11 +110,4 @@ title: Home
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-  <div id="footer-placeholder"></div>
-  <script>
-    fetch("footer.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("footer-placeholder").innerHTML = data;
-      });
-  </script>
+ 
