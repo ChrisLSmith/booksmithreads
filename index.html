@@ -112,13 +112,22 @@
     fetchSheetData(logRange).then(renderBooksTable);
   </script>
 
-  <script>
-    fetch("header.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-      });
-  </script>
+ <script>
+  fetch("header.html")
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById("header-placeholder").innerHTML = data;
+
+      // ✅ Run this *after* header.html is injected
+      if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+        const header = document.querySelector("header");
+        if (header) {
+          header.classList.add("dev");
+        }
+      }
+    });
+</script>
+
   <!-- jQuery (required for DataTables) -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 

@@ -69,3 +69,8 @@ main {
   padding: 1rem 0;
   color: #777;
 }
+
+/* Dev mode: red header */
+header.dev {
+  background-color: #FFCC00 !important; /* Red for localhost */
+}

@@ -56,6 +56,13 @@
       .then(response => response.text())
       .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
+
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+        const header = document.querySelector("header");
+        if (header) {
+          header.classList.add("dev");
+        }
+      }
       });
   </script>
   <div id="footer-placeholder"></div>
@@ -66,5 +73,6 @@
         document.getElementById("footer-placeholder").innerHTML = data;
       });
   </script>
+
 </body>
 </html>
