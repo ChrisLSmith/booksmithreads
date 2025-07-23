@@ -93,6 +93,16 @@
       const sheetRange = `${questName} Quest!B4:E`;
       document.getElementById("quest-title").textContent = `${questName} Quest`;
 
+      async function checkIfPublished() {
+        const metaRange = `${questName} Quest!C1`;
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(
+          metaRange
+        )}?key=${apiKey}`;
+        const res = await fetch(url);
+        const json = await res.json();
+        const value = json.values?.[0]?.[0]?.toLowerCase() || "";
+        return value === "yes";
+      }
       async function fetchQuestData() {
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(
           sheetRange
@@ -139,7 +149,19 @@
         progressBar.setAttribute("aria-valuenow", percent);
       }
 
-      renderQuest();
+      checkIfPublished().then((isPublished) => {
+        if (!isPublished) {
+          document.querySelector("main").innerHTML = `
+      <div class="text-center my-5">
+        <h2 class="text-danger">Quest not found</h2>
+        <p class="text-muted">This quest is either unpublished or does not exist.</p>
+        <a href="quests.html" class="btn btn-primary mt-3">Back to Quests</a>
+      </div>
+    `;
+        } else {
+          renderQuest();
+        }
+      });
     </script>
 
     <script>

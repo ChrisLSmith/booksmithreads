@@ -96,3 +96,7 @@ header.dev {
 a.text-decoration-none:hover {
   text-decoration: none;
 }
+
+.text-danger {
+  font-weight: bold;
+}
