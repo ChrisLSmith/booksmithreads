@@ -1,148 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chris' Book Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chris' Book Tracker</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- DataTables CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
 
-</head>
-<body>
-  <div id="header-placeholder"></div>
+    <main class="container">
+      <div id="dashboard-section" class="row mb-4">
+        <div class="col-md-6">
+          <div class="p-4 bg-light border rounded h-100 text-center">
+            <div
+              style="
+                font-size: 1rem;
+                text-transform: uppercase;
+                color: #777;
+                margin-bottom: 0.5rem;
+              "
+            >
+              Currently Reading
+            </div>
+            <div
+              id="current-title"
+              style="font-size: 1.5rem; font-weight: bold"
+            ></div>
+            <div id="current-author" style="font-size: 1rem; color: #555"></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-4 bg-light border rounded h-100 text-center">
+            <div style="font-size: 1.2rem; font-weight: bold">
+              Books I've Read This Year
+            </div>
+            <div
+              id="year-count"
+              style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem"
+            >
+              0
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <main class="container">
-    <h1>Books I've Read</h1>
-    <table id="books-table" class="table">
-      <thead>
-        <tr>
-          <th>Book Title</th>
-          <th>Author</th>
-          <th>Year Read</th>
-          <th>Rating</th>
-        </tr>
-      </thead>
-      <tbody id="books-body">
-        <tr id="loading-row">
-          <td colspan="4" style="text-align: center; padding: 2rem;">
-            <div class="spinner-border text-primary" role="status"></div>
-            <div style="margin-top: 0.5rem;">Loading books...</div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </main>
+      <h1>Books I've Read</h1>
+      <table id="books-table" class="table">
+        <thead>
+          <tr>
+            <th>Book Title</th>
+            <th>Author</th>
+            <th>Year Read</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody id="books-body">
+          <tr id="loading-row">
+            <td colspan="4" style="text-align: center; padding: 2rem">
+              <div class="spinner-border text-primary" role="status"></div>
+              <div style="margin-top: 0.5rem">Loading books...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-  <script>
-    const sheetId = '1fF7P_rtLpgdr6LadFXJ3ZhjvNVw3TCBHnHi0q4XEx9I';
-    const logRange = 'Log!A2:G';
+      <div id="top-books-section" class="row mt-5 mb-5">
+        <div class="col-md-6">
+          <div class="p-4 bg-light border rounded h-100">
+            <div
+              style="
+                font-size: 1.2rem;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 1rem;
+              "
+            >
+              Top 10 Books This Year
+            </div>
+            <ul id="top-books-year" class="list-unstyled mb-0"></ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-4 bg-light border rounded h-100">
+            <div
+              style="
+                font-size: 1.2rem;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 1rem;
+              "
+            >
+              Top 10 Books of All Time
+            </div>
+            <ul id="top-books-all" class="list-unstyled mb-0"></ul>
+          </div>
+        </div>
+      </div>
+    </main>
 
-    async function fetchSheetData(range) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=AIzaSyCFcup6gSBuwCFuwNKF-gIkrK2f_6nfD0g`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data.values || [];
-    }
+    <script>
+      const sheetId = "1fF7P_rtLpgdr6LadFXJ3ZhjvNVw3TCBHnHi0q4XEx9I";
+      const logRange = "Log!A2:G";
 
-    function buildBookUrl(title) {
-      return `book.html?title=${encodeURIComponent(title)}`;
-    }
+      async function fetchSheetData(range) {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=AIzaSyCFcup6gSBuwCFuwNKF-gIkrK2f_6nfD0g`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.values || [];
+      }
 
-   function renderBooksTable(data) {
-     const tbody = document.querySelector("#books-body");
+      function buildBookUrl(title) {
+        return `book.html?title=${encodeURIComponent(title)}`;
+      }
 
-     // Remove loading row
-     const loadingRow = document.getElementById("loading-row");
-     if (loadingRow) loadingRow.remove();
+      function renderBooksTable(data) {
+        const tbody = document.querySelector("#books-body");
 
-     // Sort by date read descending
-     data.sort((a, b) => {
-       const dateA = new Date(a[3] || '1900-01-01');
-       const dateB = new Date(b[3] || '1900-01-01');
-       return dateB - dateA;
-     });
+        // Remove loading row
+        const loadingRow = document.getElementById("loading-row");
+        if (loadingRow) loadingRow.remove();
 
-     const today = new Date();
+        // Sort by date read descending
+        data.sort((a, b) => {
+          const dateA = new Date(a[3] || "1900-01-01");
+          const dateB = new Date(b[3] || "1900-01-01");
+          return dateB - dateA;
+        });
 
-     data.forEach(row => {
-       const title = row[0] || "Unknown Title";
-       const author = row[1] || "Unknown Author";
-       const dateRead = row[3];
-       const year = row[5] || "";
-       const rating = row[6] || "";
+        const today = new Date();
 
-       let isNew = false;
-       if (dateRead) {
-         const readDate = new Date(dateRead);
-         const timeDiff = today - readDate;
-         const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-         isNew = daysDiff <= 5 && daysDiff >= 0;
-       }
+        data.forEach((row) => {
+          const title = row[0] || "Unknown Title";
+          const author = row[1] || "Unknown Author";
+          const dateRead = row[3];
+          const year = row[5] || "";
+          const rating = row[6] || "";
 
-       const tr = document.createElement("tr");
-       tr.innerHTML = `
+          let isNew = false;
+          if (dateRead) {
+            const readDate = new Date(dateRead);
+            const timeDiff = today - readDate;
+            const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+            isNew = daysDiff <= 5 && daysDiff >= 0;
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
          <td>
            <a href="${buildBookUrl(title)}">${title}</a>
-           ${isNew ? '<span style="color:red; font-weight:bold; margin-left:6px;">🆕 New!</span>' : ''}
+           ${
+             isNew
+               ? '<span style="color:red; font-weight:bold; margin-left:6px;">🆕 New!</span>'
+               : ""
+           }
          </td>
          <td>${author}</td>
          <td>${year}</td>
          <td>${rating}</td>
        `;
-       tbody.appendChild(tr);
-     });
+          tbody.appendChild(tr);
+        });
 
-     // Initialize DataTables after rendering
-    $('#books-table').DataTable({
-      paging: true,
-      searching: true,
-      ordering: true,
-      order: [], // Don't override your custom JS sort
-      language: {
-        searchPlaceholder: "Search books...",
-        search: ""
-      },
-      dom: 'ftlip' // Move the length dropdown to the bottom
-    });
-   }
-
-    fetchSheetData(logRange).then(renderBooksTable);
-  </script>
-
- <script>
-  fetch("header.html")
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById("header-placeholder").innerHTML = data;
-
-      // ✅ Run this *after* header.html is injected
-      if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-        const header = document.querySelector("header");
-        if (header) {
-          header.classList.add("dev");
-        }
+        // Initialize DataTables after rendering
+        $("#books-table").DataTable({
+          paging: true,
+          searching: true,
+          ordering: true,
+          order: [], // Don't override your custom JS sort
+          language: {
+            searchPlaceholder: "Search books...",
+            search: "",
+          },
+          dom: "ftlip", // Move the length dropdown to the bottom
+        });
       }
-    });
-</script>
 
-  <!-- jQuery (required for DataTables) -->
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+      fetchSheetData(logRange).then(renderBooksTable);
+    </script>
 
-  <!-- DataTables JS -->
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+      fetch("header.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
 
-  <div id="footer-placeholder"></div>
-  <script>
-    fetch("footer.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("footer-placeholder").innerHTML = data;
-      });
-  </script>
+          // ✅ Run this *after* header.html is injected
+          if (
+            location.hostname === "localhost" ||
+            location.hostname === "127.0.0.1"
+          ) {
+            const header = document.querySelector("header");
+            if (header) {
+              header.classList.add("dev");
+            }
+          }
+        });
+    </script>
 
-</body>
+    <!-- jQuery (required for DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+
+    <script>
+      const currentBookRange = "Dashboard!B1";
+      const booksDataRange = "Books!A2:D";
+      const currentYear = new Date().getFullYear();
+
+      async function loadDashboard() {
+        const [dashboardData, booksData, logData] = await Promise.all([
+          fetchSheetData(currentBookRange),
+          fetchSheetData(booksDataRange),
+          fetchSheetData(logRange),
+        ]);
+
+        // Get title from dashboard
+        const currentTitle =
+          dashboardData[0]?.[0] || "No book currently selected";
+        document.getElementById("current-title").textContent = currentTitle;
+
+        // Match against column B (index 1)
+        let bookRow = booksData.find(
+          (row) =>
+            row[1]?.trim().toLowerCase() === currentTitle.trim().toLowerCase()
+        );
+
+        // Fallback: partial match (just in case)
+        if (!bookRow) {
+          bookRow = booksData.find((row) =>
+            currentTitle
+              .trim()
+              .toLowerCase()
+              .includes(row[1]?.trim().toLowerCase())
+          );
+        }
+
+        // Author is in column C (index 2)
+        const author = bookRow?.[2] || "Unknown Author";
+        document.getElementById("current-author").textContent = `by ${author}`;
+
+        // Count books read this year from Log sheet (Column F = year)
+        const thisYearCount = logData.filter(
+          (row) => row[5] == currentYear
+        ).length;
+        document.getElementById("year-count").textContent = thisYearCount;
+      }
+
+      loadDashboard();
+    </script>
+
+    <script>
+      async function loadTopBooks() {
+        const [booksData, logData] = await Promise.all([
+          fetchSheetData("Books!A2:D"),
+          fetchSheetData(logRange),
+        ]);
+
+        const currentYear = new Date().getFullYear();
+
+        function getTopBooks(data, filterYear = null) {
+          const filtered = data.filter((row) => {
+            const title = row[0];
+            const year = row[5];
+            const rating = parseFloat(row[6]);
+            return (
+              title && !isNaN(rating) && (!filterYear || year == filterYear)
+            );
+          });
+
+          const top = filtered
+            .sort((a, b) => parseFloat(b[6]) - parseFloat(a[6]))
+            .slice(0, 10);
+
+          return top.map((row) => {
+            const title = row[0];
+            const match = booksData.find(
+              (book) =>
+                book[1]?.trim().toLowerCase() === title.trim().toLowerCase()
+            );
+            const author = match?.[2] || "Unknown Author";
+            return { title, author, rating: row[6] };
+          });
+        }
+
+        function renderList(containerId, books) {
+          const ul = document.getElementById(containerId);
+          ul.innerHTML = "";
+          books.forEach((book, index) => {
+            const li = document.createElement("li");
+            li.classList.add("mb-3");
+            const bookUrl = `book.html?title=${encodeURIComponent(book.title)}`;
+            li.innerHTML = `
+    <strong>${index + 1}. <a href="${bookUrl}">${book.title}</a></strong><br>
+    <span style="color: #555;">by ${book.author}</span>
+  `;
+            ul.appendChild(li);
+          });
+        }
+
+        const topYear = getTopBooks(logData, currentYear);
+        const topAll = getTopBooks(logData);
+
+        renderList("top-books-year", topYear);
+        renderList("top-books-all", topAll);
+      }
+
+      loadTopBooks();
+    </script>
+  </body>
 </html>
