@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog Post</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    main {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      line-height: 1.6;
+    }
+    main h1 {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main>
+    <h1 id="post-title">Loading title...</h1>
+    <div id="post-body">Loading content...</div>
+  </main>
+
+  <script>
+    const postParam = new URLSearchParams(window.location.search).get('post');
+    const postFile = decodeURIComponent(postParam || '');
+
+    async function loadPost(file) {
+      try {
+        const res = await fetch(`blog/${file}`);
+        const text = await res.text();
+        const [titleLine, ...bodyLines] = text.split('\n');
+        const title = titleLine.replace(/^#\s*/, '');
+        const fullContent = bodyLines.join('\n').replace('<!-- more -->', '');
+
+        document.getElementById('post-title').textContent = title;
+        document.getElementById('post-body').innerHTML = marked.parse(fullContent);
+      } catch (err) {
+        document.getElementById('post-title').textContent = 'Post Not Found';
+        document.getElementById('post-body').textContent = 'Sorry, we couldn’t load this blog post.';
+        console.error('Error loading post:', err);
+      }
+    }
+
+    loadPost(postFile);
+  </script>
+
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+        const header = document.querySelector("header");
+        if (header) {
+          header.classList.add("dev");
+        }
+      }
+      });
+  </script>
+  <div id="footer-placeholder"></div>
+  <script>
+    fetch("footer.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+      });
+  </script>
+
+</body>
+</html>

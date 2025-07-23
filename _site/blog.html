@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    main {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .post-title {
+      font-size: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .post-summary {
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  <main id="blog-content">
+    Loading blog...
+  </main>
+
+  <script>
+    // Load header
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+        const header = document.querySelector("header");
+        if (header) {
+          header.classList.add("dev");
+        }
+      }
+      });
+
+    const blogFolder = "blog/";
+    const postParam = new URLSearchParams(window.location.search).get("post");
+
+  // List of markdown files manually added here
+      const blogPosts = [
+        'post-1.md',
+        'post-2.md',
+        'post-3.md',
+        'post-4.md'
+      ];
+
+    const blogTitles = {
+      "post-1.md": "First post",
+      "post-2.md": "Second post",
+      "post-3.md": "Third post",
+      "post-4.md": "Fourth post"
+    };
+
+    const blogContent = document.getElementById("blog-content");
+
+    if (postParam) {
+      // Load and display full blog post
+      fetch(`${blogFolder}${postParam}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Post not found");
+          return res.text();
+        })
+        .then(markdown => {
+          const html = marked.parse(markdown);
+          blogContent.innerHTML = `
+            <h1>${blogTitles[postParam] || "Untitled"}</h1>
+            <div class="post-body">${html}</div>
+            <p><a href="blog.html">← Back to all posts</a></p>
+          `;
+        })
+        .catch(() => {
+          blogContent.innerHTML = `<p>Blog post not found.</p><p><a href="blog.html">← Back to all posts</a></p>`;
+        });
+    } else {
+      // Show all blog post previews
+      blogContent.innerHTML = ""; // Clear "Loading..."
+      blogPosts.forEach(file => {
+        fetch(`${blogFolder}${file}`)
+          .then(res => res.text())
+          .then(markdown => {
+            const html = marked.parse(markdown);
+            const preview = html.split("</p>")[0] + "</p>"; // Grab first paragraph
+            const title = blogTitles[file] || file;
+            const postHTML = `
+              <div class="post-summary">
+                <h2 class="post-title"><a href="blog.html?post=${file}">${title}</a></h2>
+                ${preview}
+              </div>
+            `;
+            blogContent.innerHTML += postHTML;
+          });
+      });
+    }
+  </script>
+  <div id="footer-placeholder"></div>
+  <script>
+    fetch("footer.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+      });
+  </script>
+</body>
+</html>

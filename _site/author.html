@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Author Page</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    main {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    .author-bio-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .author-photo {
+      max-width: 150px;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    }
+
+    .bio {
+      font-style: italic;
+      color: #444;
+      flex: 1;
+    }
+
+    .status-check {
+      color: green;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 600px) {
+      .author-bio-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .author-photo {
+        max-width: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main>
+    <h1 id="author-name">Loading author...</h1>
+
+    <div class="author-bio-section">
+      <img id="author-photo" class="author-photo" style="display:none;" />
+      <p class="bio" id="author-bio">Loading bio...</p>
+    </div>
+
+    <h2>Books I've read by this author</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Book Title</th>
+        </tr>
+      </thead>
+      <tbody id="books-list">
+        <tr><td colspan="2">Loading books...</td></tr>
+      </tbody>
+    </table>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    const sheetId = '1fF7P_rtLpgdr6LadFXJ3ZhjvNVw3TCBHnHi0q4XEx9I';
+    const apiKey = 'AIzaSyCFcup6gSBuwCFuwNKF-gIkrK2f_6nfD0g';
+    const authorParam = new URLSearchParams(window.location.search).get('name');
+    const decodedAuthor = decodeURIComponent(authorParam || '');
+
+    const booksRange = 'Books!A2:H';
+    const authorsRange = 'Authors!A2:C'; // include image URL (column C)
+    const logRange = 'Log!A2:H';
+
+    document.getElementById('author-name').textContent = decodedAuthor;
+
+    function clean(str) {
+      return (str || '').trim().toLowerCase();
+    }
+
+    async function fetchSheetData(range) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.values || [];
+    }
+
+    async function renderAuthorPage() {
+      const [books, authors, log] = await Promise.all([
+        fetchSheetData(booksRange),
+        fetchSheetData(authorsRange),
+        fetchSheetData(logRange)
+      ]);
+
+      // Show bio and photo
+      const authorEntry = authors.find(row => clean(row[0]) === clean(decodedAuthor));
+      const bioText = authorEntry?.[1] || 'No biography found.';
+      const photoUrl = authorEntry?.[2] || '';
+
+      document.getElementById('author-bio').textContent = bioText;
+
+      if (photoUrl) {
+        const photoEl = document.getElementById('author-photo');
+        photoEl.src = photoUrl;
+        photoEl.alt = decodedAuthor;
+        photoEl.style.display = 'block';
+      }
+
+      // Show books
+      const tbody = document.getElementById('books-list');
+      tbody.innerHTML = '';
+
+      const entries = log.filter(row => clean(row[1]) === clean(decodedAuthor));
+
+      if (entries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2">No books found by this author.</td></tr>';
+        return;
+      }
+
+      entries.forEach(row => {
+        const title = row[0];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="status-check">✅</td>
+          <td><a href="book.html?title=${encodeURIComponent(title)}">${title}</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    renderAuthorPage();
+
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+                const header = document.querySelector("header");
+                if (header) {
+                  header.classList.add("dev");
+                }
+              }
+      });
+
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+      });
+  </script>
+
+</body>
+</html>
