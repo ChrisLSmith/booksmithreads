@@ -7,83 +7,200 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    .blog-post-preview {
-      margin-bottom: 2rem;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 1.5rem;
-    }
-
-    .blog-post-preview h2 {
-      font-size: 1.6rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .blog-post-preview .date {
-      color: #888;
-      font-size: 0.9rem;
-      margin-bottom: 0.8rem;
-    }
-
-    .blog-post-preview p {
-      font-size: 1.05rem;
-      line-height: 1.6;
-    }
-  </style>
+  .blog-post-preview { margin-bottom: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 1.5rem; }
+  .blog-post-preview h2 { font-size: 1.6rem; margin-bottom: 0.3rem; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+  .blog-post-preview .date { color: #888; font-size: 0.9rem; margin-bottom: 0.8rem; }
+  .blog-post-preview p { font-size: 1.05rem; line-height: 1.6; }
+  .pager { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; justify-content:center; margin-top:2rem; }
+  .pager .btn { min-width: 80px; }
+  .page-status { font-size:.95rem; color:#666; margin: 0 .5rem; }
+  .page-size { margin-left: auto; }
+  .sticky-pin {
+    font-size: 0.9rem;
+    color: #888;
+    opacity: 0.7;
+    line-height: 1;
+  }
+  @media (max-width: 576px){ .page-size { width:100%; text-align:center; margin-top:.5rem; } }
+</style>
 </head>
 <body>
   <div id="header-placeholder"></div>
 
   <main class="container py-5">
     <h1 class="mb-4">Blog</h1>
-    <div id="blog-list"></div>
+
+    <div id="blog-list" aria-live="polite"></div>
+
+    <!-- Pagination controls -->
+    <div class="pager">
+      <button id="firstBtn" class="btn btn-outline-secondary btn-sm" type="button">« First</button>
+      <button id="prevBtn" class="btn btn-outline-secondary btn-sm" type="button">‹ Prev</button>
+      <span class="page-status" id="pageStatus">Page 1 of 1</span>
+      <button id="nextBtn" class="btn btn-outline-secondary btn-sm" type="button">Next ›</button>
+      <button id="lastBtn" class="btn btn-outline-secondary btn-sm" type="button">Last »</button>
+
+      <div class="page-size">
+        <label for="pageSize" class="form-label me-2 mb-0">Per page</label>
+        <select id="pageSize" class="form-select form-select-sm d-inline-block" style="width:auto;">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+    </div>
   </main>
 
   <div id="footer-placeholder"></div>
 
   <script>
-    const sheetId = "1fF7P_rtLpgdr6LadFXJ3ZhjvNVw3TCBHnHi0q4XEx9I";
+    const sheetId = "1SnuFj14XnZ4QFSvZPM1OqHiMqoHMq6B6trylknucIGE";
     const apiKey = "AIzaSyCFcup6gSBuwCFuwNKF-gIkrK2f_6nfD0g";
-    const blogRange = "Blog!A2:F";
+    // Include column G for "Sticky?"
+    const blogRange = "Blog!A2:G";
 
-    async function fetchBlogPosts() {
+    const listEl = document.getElementById("blog-list");
+    const pageStatusEl = document.getElementById("pageStatus");
+    const firstBtn = document.getElementById("firstBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const lastBtn = document.getElementById("lastBtn");
+    const pageSizeEl = document.getElementById("pageSize");
+
+    // We'll store sticky and regular separately
+    let stickyPosts = [];
+    let regularPosts = [];
+
+    let page = getPageFromURL() || 1;
+    let pageSize = Number(localStorage.getItem("blog_page_size")) || Number(pageSizeEl.value);
+    pageSizeEl.value = String(pageSize);
+
+    function getPageFromURL() {
+      const p = Number(new URLSearchParams(location.search).get("page"));
+      return Number.isFinite(p) && p > 0 ? Math.floor(p) : 1;
+    }
+
+    function setPageInURL(newPage) {
+      const url = new URL(location.href);
+      url.searchParams.set("page", newPage);
+      history.replaceState({}, "", url);
+    }
+
+    async function fetchBlogRows() {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${blogRange}?key=${apiKey}`;
       const res = await fetch(url);
       const json = await res.json();
       return json.values || [];
     }
 
-    function renderBlogPosts(posts) {
-      const container = document.getElementById("blog-list");
+    function normalize(rows) {
+      // Filter published, then split sticky vs regular and sort each by date desc
+      const published = rows.filter(row => (row[4] || "").toLowerCase() === "yes");
+      const isSticky = r => (r[6] || "").toLowerCase() === "yes";
 
-      const filtered = posts
-        .filter(row => (row[4] || "").toLowerCase() === "yes") // Published
-        .sort((a, b) => new Date(b[2]) - new Date(a[2]));     // Newest first
+      const stickies = published.filter(isSticky)
+        .sort((a, b) => new Date(b[2]) - new Date(a[2]));
+      const regular = published.filter(r => !isSticky(r))
+        .sort((a, b) => new Date(b[2]) - new Date(a[2]));
 
-      filtered.forEach(([slug, title, date, excerpt]) => {
-        const postDiv = document.createElement("div");
-        postDiv.className = "blog-post-preview";
-        postDiv.innerHTML = `
-          <h2><a href="blog-post.html?slug=${encodeURIComponent(slug)}">${title}</a></h2>
-          <div class="date">${date}</div>
-          <p>${excerpt}</p>
-        `;
-        container.appendChild(postDiv);
-      });
+      return { stickies, regular };
     }
 
-    fetchBlogPosts().then(renderBlogPosts);
+    function renderPostRow(row, { showStickyBadge = false } = {}) {
+  const [slug, title, date, excerpt] = row; // A, B, C, D
+  const div = document.createElement("div");
+  div.className = "blog-post-preview";
 
-    fetch("header.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-      });
+  const stickyIcon = showStickyBadge
+    ? `<span class="sticky-pin" title="Pinned post">📌</span>`
+    : "";
 
-    fetch("footer.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("footer-placeholder").innerHTML = data;
-      });
+  div.innerHTML = `
+    <h2>
+      <a href="blog-post.html?slug=${encodeURIComponent(slug)}">${title}</a>
+      ${stickyIcon}
+    </h2>
+    <div class="date">${date}</div>
+    <p>${excerpt || ""}</p>
+  `;
+  return div;
+}
+
+
+    function renderPage() {
+      // Pagination only applies to REGULAR posts. Stickies show on page 1 only.
+      const totalRegular = regularPosts.length;
+      const totalPages = Math.max(1, Math.ceil(totalRegular / pageSize));
+
+      if (page > totalPages) page = totalPages;
+      if (page < 1) page = 1;
+
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const slice = regularPosts.slice(start, end);
+
+      listEl.innerHTML = "";
+
+      // Show stickies at top on page 1 only
+      if (page === 1 && stickyPosts.length) {
+        stickyPosts.forEach(row => {
+          listEl.appendChild(renderPostRow(row, { showStickyBadge: true }));
+        });
+      }
+
+      if (slice.length === 0 && (page !== 1 || stickyPosts.length === 0)) {
+        listEl.innerHTML += `<p class="text-muted">No posts yet.</p>`;
+      } else {
+        slice.forEach(row => listEl.appendChild(renderPostRow(row, { showStickyBadge: false })));
+      }
+
+      pageStatusEl.textContent = `Page ${page} of ${totalPages}`;
+      firstBtn.disabled = page === 1;
+      prevBtn.disabled = page === 1;
+      nextBtn.disabled = page === totalPages;
+      lastBtn.disabled = page === totalPages;
+
+      setPageInURL(page);
+    }
+
+    function goFirst(){ page = 1; renderPage(); }
+    function goPrev(){ if (page > 1) { page--; renderPage(); } }
+    function goNext(){
+      const totalPages = Math.max(1, Math.ceil(regularPosts.length / pageSize));
+      if (page < totalPages) { page++; renderPage(); }
+    }
+    function goLast(){
+      page = Math.max(1, Math.ceil(regularPosts.length / pageSize));
+      renderPage();
+    }
+
+    firstBtn.addEventListener("click", goFirst);
+    prevBtn.addEventListener("click", goPrev);
+    nextBtn.addEventListener("click", goNext);
+    lastBtn.addEventListener("click", goLast);
+
+    pageSizeEl.addEventListener("change", () => {
+      pageSize = Number(pageSizeEl.value) || 10;
+      localStorage.setItem("blog_page_size", String(pageSize));
+      page = 1; // reset to first page when size changes
+      renderPage();
+    });
+
+    fetchBlogRows().then(rows => {
+      const { stickies, regular } = normalize(rows);
+      stickyPosts = stickies;
+      regularPosts = regular;
+      renderPage();
+    });
+
+    // header/footer includes
+    fetch("header.html").then(r => r.text()).then(html => {
+      document.getElementById("header-placeholder").innerHTML = html;
+    });
+    fetch("footer.html").then(r => r.text()).then(html => {
+      document.getElementById("footer-placeholder").innerHTML = html;
+    });
   </script>
 </body>
 </html>
