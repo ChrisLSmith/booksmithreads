@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ - Booksmith Reads</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    />
+    <style>
+      .accordion-button {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+      .accordion-body {
+        font-size: 1rem;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main class="container py-5">
+      <h1 class="mb-4 text-center">Frequently Asked Questions</h1>
+
+      <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq1-heading">
+            <button
+              class="accordion-button"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#faq1"
+              aria-expanded="true"
+              aria-controls="faq1"
+            >
+              How do you rate books?
+            </button>
+          </h2>
+          <div
+            id="faq1"
+            class="accordion-collapse collapse show"
+            aria-labelledby="faq1-heading"
+            data-bs-parent="#faqAccordion"
+          >
+            <div class="accordion-body">
+              <p>
+                When I first started rating books, it was all gut feeling—just a
+                number that felt right. But over time, I wanted to be more fair
+                and consistent. Now I use a system with very detailed questions
+                that I answer after every book. It helps me break things down
+                and really think about what worked and what didn’t. I got
+                inspired by Dave Portnoy’s pizza reviews. I appreciate that his
+                scale is tough, and a high score actually means something. I
+                wanted the same for books. That’s why you won’t see many perfect
+                scores from me. I’ve never given a 10. I’m still waiting to read
+                one.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq2-heading">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#faq2"
+              aria-expanded="false"
+              aria-controls="faq2"
+            >
+              How do you read so many books?
+            </button>
+          </h2>
+          <div
+            id="faq2"
+            class="accordion-collapse collapse"
+            aria-labelledby="faq2-heading"
+            data-bs-parent="#faqAccordion"
+          >
+            <div class="accordion-body">
+              <p>
+                People often ask how I read so many books. Part of it is that
+                I’ve always been a fast reader—it just comes naturally. But the
+                real secret is something called immersive reading. I listen to
+                the audiobook while reading the physical (or Kindle) version at
+                the same time. Over time, I’ve trained myself to handle faster
+                playback speeds without losing much comprehension. It’s not
+                perfect—I still get distracted sometimes and have to
+                backtrack—but it works. I also bring audiobooks with me
+                everywhere. In the car, doing dishes, folding laundry... all
+                those little moments really add up to more reading time.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq3-heading">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#faq3"
+              aria-expanded="false"
+              aria-controls="faq3"
+            >
+              Do you finish every book you start?
+            </button>
+          </h2>
+          <div
+            id="faq3"
+            class="accordion-collapse collapse"
+            aria-labelledby="faq3-heading"
+            data-bs-parent="#faqAccordion"
+          >
+            <div class="accordion-body">
+              <p>
+                [Feel free to explain your philosophy on DNF-ing books, whether
+                you rate unfinished books, etc.]
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add more accordion-items as needed -->
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+      fetch("header.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
+        });
+
+      fetch("footer.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
