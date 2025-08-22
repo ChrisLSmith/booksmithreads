@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P8521TN3E4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-P8521TN3E4');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Top 100 Books — Alt Layout</title>
+
+    <!-- Fonts / CSS (match your existing pages) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+      .entry {
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: .75rem;
+        background: #fff;
+      }
+      .entry + .entry { margin-top: 1rem; }
+      .entry-rank {
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: #0d6efd;
+        margin-bottom: .25rem;
+      }
+      .entry-cover {
+        width: 64px;
+        height: 96px;
+        object-fit: cover;
+        border-radius: .5rem;
+        background: #f1f3f5;
+      }
+      .entry-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin: 0;
+      }
+      .entry-meta {
+        color: #6c757d;
+        font-size: .95rem;
+        margin-bottom: .25rem;
+      }
+      .entry-rating {
+        display: inline-block;
+        font-weight: 700;
+        padding: .15rem .5rem;
+        border-radius: .5rem;
+        background: #eef6ff;
+        color: #0b5ed7;
+        font-size: .9rem;
+        margin-left: .5rem;
+      }
+      .entry-summary {
+        margin: .5rem 0 0;
+        color: #333;
+        line-height: 1.5;
+      }
+      .list-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 1.5rem 0 1rem;
+      }
+      .muted { color: #6c757d; }
+      @media (max-width: 576px) {
+        .entry { grid-template-columns: 48px 1fr; }
+        .entry-cover { width: 48px; height: 72px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+      <div class="list-header">
+        <h1 class="mb-0">Top 100 Books of All Time</h1>
+        <div class="muted">Ranked by your ratings (alphabetical tie-breaks; ranks 1–100)</div>
+      </div>
+
+      <div id="top100-list">
+        <div class="text-center py-5" id="loading">
+          <div class="spinner-border text-primary" role="status"></div>
+          <div class="mt-2">Loading your all‑timers…</div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // === Config (matches your existing index.html approach) ===
+      const sheetId   = "1fF7P_rtLpgdr6LadFXJ3ZhjvNVw3TCBHnHi0q4XEx9I";
+      const LOG_RANGE = "Log!A2:G";         // A: Title, B: Author, G: Rating
+      const BOOKS_RANGE = "Books!A2:D";     // B: Title, C: Author, D: ISBN
+      const REVIEWS_RANGE = "Reviews!A2:E"; // A: Title, B: Author, C: Summary
+
+      // ★ ISBNdb API key:
+      // 1) Put it here, OR
+      // 2) Set it at runtime via: localStorage.setItem('ISBNDB_KEY', 'YOUR_KEY')
+      const ISBNDB_KEY = localStorage.getItem('ISBNDB_KEY') || ""; // or "YOUR_ISBNDB_KEY"
+
+      async function fetchSheet(range) {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=AIzaSyCFcup6gSBuwCFuwNKF-gIkrK2f_6nfD0g`;
+        const r = await fetch(url);
+        const j = await r.json();
+        return j.values || [];
+      }
+
+      // Primary cover source: Open Library (no key)
+      function openLibraryCoverUrl(isbn) {
+        if (!isbn) return null;
+        return `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(isbn)}-M.jpg`;
+      }
+
+      // Secondary cover source: ISBNdb (needs API key)
+      async function fetchIsbnDbCoverUrl(isbn) {
+        if (!isbn || !ISBNDB_KEY) return null;
+        try {
+          const resp = await fetch(`https://api2.isbndb.com/book/${encodeURIComponent(isbn)}`, {
+            headers: { "X-API-KEY": ISBNDB_KEY }
+          });
+          if (!resp.ok) return null;
+          const data = await resp.json();
+          // ISBNdb typically returns an absolute URL in book.image
+          return data && data.book && data.book.image ? data.book.image : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // Helper to set the cover with fallback: Open Library → ISBNdb → hide
+      async function setCoverWithFallback(imgEl, isbn, title) {
+        if (!isbn) { imgEl.style.display = 'none'; return; }
+
+        const primary = openLibraryCoverUrl(isbn);
+        if (!primary) { imgEl.style.display = 'none'; return; }
+
+        // First try Open Library
+        imgEl.src = primary;
+        imgEl.alt = `Cover of ${title}`;
+
+        imgEl.onerror = async () => {
+          // Try ISBNdb as a fallback
+          const altUrl = await fetchIsbnDbCoverUrl(isbn);
+          if (altUrl) {
+            imgEl.onerror = () => { imgEl.style.display = 'none'; }; // final fallback → hide
+            imgEl.src = altUrl;
+          } else {
+            imgEl.style.display = 'none';
+          }
+        };
+      }
+
+      function buildBookUrl(title) {
+        return `book.html?title=${encodeURIComponent(title)}`;
+      }
+      function buildAuthorUrl(author) {
+        return `author.html?name=${encodeURIComponent(author)}`;
+      }
+
+      function normalize(s){ return (s || "").trim(); }
+      function keyFor(title, author){
+        return `${normalize(title).toLowerCase()}|${normalize(author).toLowerCase()}`;
+      }
+
+      function formatRating(r) {
+        const num = Number(r);
+        if (Number.isNaN(num)) return "";
+        return Number.isInteger(num) ? `${num}/10` : `${num.toFixed(1)}/10`;
+      }
+
+      function renderList(items, isbnMap, summaryMap) {
+        const container = document.getElementById("top100-list");
+        const loading = document.getElementById("loading");
+        if (loading) loading.remove();
+
+        container.innerHTML = "";
+
+        items.forEach((item) => {
+          const tKey = keyFor(item.title, item.author);
+          const isbn = isbnMap.get(tKey) || "";
+          const summary = summaryMap.get(tKey) || "";
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "entry";
+
+          // Build the inner HTML first (without img src) so we can attach logic
+          wrapper.innerHTML = `
+            <img class="entry-cover" alt="Cover of ${item.title}" />
+            <div>
+              <div class="entry-rank">#${item.rank}
+                <span class="entry-rating">${formatRating(item.rating)}</span>
+              </div>
+              <h2 class="entry-title">
+                <a href="${buildBookUrl(item.title)}">${item.title}</a>
+              </h2>
+              <div class="entry-meta">by <a href="${buildAuthorUrl(item.author)}">${item.author || "Unknown Author"}</a></div>
+              ${summary ? `<p class="entry-summary">${summary}</p>` : ""}
+            </div>
+          `;
+
+          const imgEl = wrapper.querySelector(".entry-cover");
+          setCoverWithFallback(imgEl, isbn, item.title);
+
+          container.appendChild(wrapper);
+        });
+      }
+
+      (async function init(){
+        const [logRows, bookRows, reviewRows] = await Promise.all([
+          fetchSheet(LOG_RANGE),
+          fetchSheet(BOOKS_RANGE),
+          fetchSheet(REVIEWS_RANGE),
+        ]);
+
+        // Build ISBN map from Books (Title=B[1], Author=C[2], ISBN=D[3])
+        const isbnMap = new Map();
+        for (const r of bookRows) {
+          const title = normalize(r[1]);
+          const author = normalize(r[2]);
+          const isbn = normalize(r[3]);
+          if (title && author && isbn) {
+            isbnMap.set(keyFor(title, author), isbn);
+          }
+        }
+
+        // Build Summary map from Reviews (Title=A[0], Author=B[1], Summary=C[2])
+        const summaryMap = new Map();
+        for (const r of reviewRows) {
+          const title = normalize(r[0]);
+          const author = normalize(r[1]);
+          const summary = normalize(r[2]);
+          if (title) {
+            summaryMap.set(keyFor(title, author), summary);
+          }
+        }
+
+        // Pull items from Log (Title=A[0], Author=B[1], Rating=G[6])
+        const items = logRows
+          .map(row => ({
+            title: normalize(row[0]),
+            author: normalize(row[1]),
+            rating: parseFloat(row[6]),
+          }))
+          .filter(x => x.title && !Number.isNaN(x.rating));
+
+        // Sort by rating DESC, then by Title A–Z for ties
+        items.sort((a,b) => {
+          if (b.rating !== a.rating) return b.rating - a.rating;
+          return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
+        });
+
+        // Take exactly Top 100
+        const top = items.slice(0, 100);
+
+        // Assign straight ranks 1–100 (no skipped numbers)
+        top.forEach((it, idx) => { it.rank = idx + 1; });
+
+        renderList(top, isbnMap, summaryMap);
+      })();
+    </script>
+
+    <!-- === Header (exactly like index.html) === -->
+    <script>
+      fetch("header.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
+
+          if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+            const header = document.querySelector("header");
+            if (header) header.classList.add("dev");
+          }
+        });
+    </script>
+
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+  </body>
+</html>

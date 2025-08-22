@@ -100,3 +100,13 @@ a.text-decoration-none:hover {
 .text-danger {
   font-weight: bold;
 }
+
+.progress-footer {
+  position: relative;
+  font-weight: 500;
+}
+
+.quest-card .card {
+  border-radius: 0.75rem;
+  overflow: hidden;          /* <- clips the progress fill to the rounded card */
+}
