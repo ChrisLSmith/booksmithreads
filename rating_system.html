@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P8521TN3E4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-P8521TN3E4');
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How I Rate Books — My 1–10 System</title>
+
+    <!-- Fonts / CSS (match your existing pages) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+      .page-header {
+        margin: 1.5rem 0 1rem;
+      }
+      .leadish {
+        color: #495057;
+        font-size: 1.05rem;
+      }
+      .toc {
+        position: sticky;
+        top: 1rem;
+      }
+      .section-card {
+        border: 1px solid #e9ecef;
+        border-radius: .75rem;
+        box-shadow: 0 1px 0 rgba(16,24,40,.02);
+        background: #fff;
+      }
+      .section-card + .section-card { margin-top: 1.25rem; }
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #eef2f6;
+      }
+      .section-body {
+        padding: 1rem 1.25rem 1.25rem;
+      }
+      .pill {
+        font-size: .8rem;
+        font-weight: 700;
+        padding: .25rem .6rem;
+        border-radius: 999px;
+        background: #f1f3f5;
+        color: #0b5ed7;
+      }
+      .criterion {
+        margin-bottom: 1rem;
+      }
+      .criterion h4 {
+        font-size: 1rem;
+        margin: 0 0 .35rem 0;
+      }
+      .criterion ul {
+        margin: 0;
+      }
+      .criterion li {
+        margin: .25rem 0;
+      }
+      .category-title {
+        margin-top: 2rem;
+        margin-bottom: .75rem;
+      }
+      .muted { color: #6c757d; }
+
+      @media (max-width: 992px) {
+        .toc { position: static; margin-bottom: 1rem; }
+      }
+
+      /* Print-friendly */
+      @media print {
+        .toc, .navbar, #header-placeholder, #footer-placeholder { display: none !important; }
+        .section-card { box-shadow: none; page-break-inside: avoid; }
+        a[href]:after { content: ""; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+      <div class="page-header">
+        <h1 class="mb-2">How I Rate Books</h1>
+        <p class="leadish">
+          I use a tough 1–10 scale. Higher scores are hard to earn. For each genre, I review a
+          consistent set of questions across five pillars (like <em>Originality</em>, <em>Structure</em>, and <em>Writing Quality</em>).
+          These questions guide my judgment; For each question I assign an answer of either Yes, No, or Somewhat. Each of these answers has a weight assigned to it and then from there I calculate the final score between 1-10.
+        </p>
+        <p class="leadish mb-0">
+          Occassionally I will adjust the score manually if the questions don't produce an answer that feels right. But this is actually very rare - I've found that this system produces a satisfactory result nearly every time. 
+        </p>
+      </div>
+
+      <div class="row">
+        <!-- TOC -->
+        <aside class="col-lg-3">
+          <div class="toc section-card">
+            <div class="section-header">
+              <strong>Jump to a Category</strong>
+            </div>
+            <div class="section-body">
+              <nav class="nav flex-column small">
+                <a class="nav-link px-0 py-1" href="#novels">Novels</a>
+                <a class="nav-link px-0 py-1" href="#nonfiction">Non‑Fiction Books</a>
+                <a class="nav-link px-0 py-1" href="#children">Children’s Books</a>
+                <a class="nav-link px-0 py-1" href="#short-stories">Short Stories</a>
+                <a class="nav-link px-0 py-1" href="#plays-legends">Plays & Legends/Lore</a>
+              </nav>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Content -->
+        <section class="col-lg-9">
+          <!-- NOVELS -->
+          <h2 id="novels" class="category-title">Novels <span class="pill">5 Pillars</span></h2>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Originality &amp; Impact</strong>
+             
+            </div>
+            <div class="section-body">
+              <div class="criterion">
+                <ul>
+                  <li>Did the story feel fresh or unique in its themes or execution?</li>
+                  <li>Did the book subvert or reinvent common tropes in an effective way?</li>
+                  <li>Did anything meaningfully challenge your expectations or worldview?</li>
+                  <li>Did the author’s voice or approach stand out from others in the genre?</li>
+                  <li>Will you likely remember this book years from now because of its impact?</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Development &amp; Depth</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Were the main characters multi-dimensional and believable?</li>
+                <li>Did character motivations feel complex and well explored?</li>
+                <li>Were relationships dynamic and developed with nuance?</li>
+                <li>Did the world feel immersive, with rich cultural or emotional layers?</li>
+                <li>Were deeper themes meaningfully integrated into the narrative?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Engagement &amp; Enjoyment</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the book hook you early in the story?</li>
+                <li>Were you eager to return to the book when away from it?</li>
+                <li>Did the story hold your interest throughout with minimal slow spots?</li>
+                <li>Did the emotional stakes feel real and compelling?</li>
+                <li>Did the book deliver moments of genuine joy, tension, or emotion?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Structure &amp; Flow</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the plot develop in a way that felt natural and earned?</li>
+                <li>Was there a strong sense of progression or rising tension?</li>
+                <li>Did the pacing feel well-balanced from beginning to end?</li>
+                <li>Were chapter transitions or shifts in time/place handled smoothly?</li>
+                <li>Did the story build to a satisfying or powerful conclusion?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Writing Quality</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the prose vivid, evocative, or emotionally immersive?</li>
+                <li>Did the dialogue feel authentic and reveal character or theme?</li>
+                <li>Were metaphors, symbolism, or imagery used meaningfully?</li>
+                <li>Did the tone and style fit the genre and emotional stakes?</li>
+                <li>Did the writing elevate the story beyond just solid storytelling?</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- NON-FICTION -->
+          <h2 id="nonfiction" class="category-title">Non‑Fiction Books <span class="pill">5 Pillars</span></h2>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Insight &amp; Perspective</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the book present ideas or angles you hadn’t seen before?</li>
+                <li>Did it challenge or expand how you think about the world?</li>
+                <li>Did it make you curious to learn more about the topic afterward?</li>
+                <li>Did it leave you reflecting on its ideas after you put it down?</li>
+                <li>Did the book help you see familiar issues or topics in a new light?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Clarity &amp; Understanding</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the book explain its topic in a clear and thorough way?</li>
+                <li>Were key terms, events, or people introduced with enough background to follow?</li>
+                <li>Did the book help you understand something that once felt confusing or intimidating?</li>
+                <li>Were complex ideas broken down into manageable, understandable parts?</li>
+                <li>Did it explore different sides of a topic without feeling biased or shallow?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Engagement &amp; Enjoyment</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the book grab your attention early on?</li>
+                <li>Did it stay interesting throughout without dragging?</li>
+                <li>Did it use real stories, people, or events to keep things engaging?</li>
+                <li>Were there moments that surprised, moved, or intrigued you?</li>
+                <li>Did the book make you want to talk about it with someone?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Structure &amp; Flow</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the organization easy to follow from chapter to chapter?</li>
+                <li>Did each section build on the one before it?</li>
+                <li>Were ideas introduced at the right time, not all at once or out of order?</li>
+                <li>Did transitions between topics or chapters feel smooth?</li>
+                <li> Did the book feel cohesive and purposeful from beginning to end?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Writing Quality</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the writing clear and free of confusing jargon?</li>
+                <li>Did the tone feel approachable and not overly dry or academic?</li>
+                <li>Were anecdotes, analogies, or metaphors used effectively to explain ideas?</li>
+                <li>Was the style consistent and easy to read throughout the book?</li>
+                <li>Did the writing help make the subject feel vivid, human, or emotionally resonant?</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CHILDREN'S BOOKS -->
+          <h2 id="children" class="category-title">Children’s Books <span class="pill">5 Pillars</span></h2>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Message &amp; Meaning</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the book offer a meaningful message or insight relevant to middle-grade readers?</li>
+                <li>Did it explore themes like identity, friendship, fairness, courage, or belonging in a thoughtful way?</li>
+                <li>Did it encourage emotional growth, curiosity, or deeper thinking?</li>
+                <li>Was the moral or takeaway woven into the story without feeling forced or preachy?</li>
+                <li>Did the book leave you thinking or spark conversation after it ended?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Engagement &amp; Appeal</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the story capture your interest quickly and hold it throughout?</li>
+                <li>Were there moments of excitement, tension, humor, or surprise?</li>
+                <li>Did the story feel imaginative, adventurous, or emotionally rich?</li>
+                <li>Was the pacing appropriate for independent readers (not too slow or too intense)?</li>
+                <li>Would the intended age group likely recommend it to friends?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Characters &amp; Relatability</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Were the main characters believable, interesting, and age-appropriate?</li>
+                <li>Did the characters face challenges that felt real and meaningful to their stage of life?</li>
+                <li>Were the emotional arcs — such as fear, bravery, or self-discovery — well developed?</li>
+                <li>Did the characters grow, learn, or change in ways readers could connect with?</li>
+                <li>Were different backgrounds, family situations, or cultures presented with empathy and care?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Plot &amp; Structure</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the story follow a clear and satisfying arc (beginning, middle, climax, resolution)?</li>
+                <li>Did each chapter or section contribute meaningfully to the whole?</li>
+                <li>Were there logical transitions and consistent progression without confusion?</li>
+                <li>Was the conflict or mystery engaging enough to drive the story forward?</li>
+                <li>Did the ending feel earned, satisfying, or emotionally resonant?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Writing Quality</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the vocabulary appropriate but still challenging and interesting for this age group?</li>
+                <li>Did the prose flow smoothly and feel well-crafted without being overly complex?</li>
+                <li>Was the tone respectful of the reader’s intelligence and emotional range?</li>
+                <li>Did the writing evoke vivid imagery, strong emotions, or immersive moments?</li>
+                <li>Did the author show creativity or voice that stood out in the genre?</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- SHORT STORIES -->
+          <h2 id="short-stories" class="category-title">Short Stories <span class="pill">5 Pillars</span></h2>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Concept &amp; Impact</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the story or collection present a striking or memorable concept?</li>
+                <li>Did it explore an idea or emotional truth in a fresh or compelling way?</li>
+                <li>Did it leave a strong impression on you after finishing it?</li>
+                <li>Did it make you pause, reflect, or reread sections due to depth or intrigue?</li>
+                <li>Did it say something meaningful or provocative in a short space?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Character &amp; Emotion</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the characters feel emotionally real despite the short length?</li>
+                <li>Were you able to care about or empathize with the characters quickly?</li>
+                <li>Did the relationships or inner conflicts feel believable or moving?</li>
+                <li>Were motivations and choices conveyed clearly, without heavy exposition?</li>
+                <li>Did the character(s) change, reveal something deep, or stay with you?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Engagement &amp; Atmosphere</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the story grab your attention from the first paragraph?</li>
+                <li>Did the tone, pacing, or stakes feel intense or absorbing?</li>
+                <li>Was the atmosphere or mood vividly conveyed?</li>
+                <li>Did you feel emotionally or mentally “immersed” while reading?</li>
+                <li>Were there moments of surprise, beauty, tension, or resonance?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Structure &amp; Execution</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the structure (linear, fragmented, framed, etc.) effective for the story?</li>
+                <li>Did the ending feel earned — whether conclusive, open-ended, or ambiguous?</li>
+                <li>Was the story or collection cohesive and thoughtfully arranged?</li>
+                <li>Did each story in a collection feel distinctive yet thematically aligned?</li>
+                <li>Did the author make strong use of the short form (e.g., compression, implication, restraint)?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Writing Quality</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the prose tight, purposeful, and artfully crafted?</li>
+                <li>Did the language evoke emotion, imagery, or insight without excess?</li>
+                <li>Were literary devices (symbolism, metaphor, irony) used effectively?</li>
+                <li>Did the style fit the emotional weight or themes of the piece?</li>
+                <li>Did the voice feel confident, distinct, or original?</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- PLAYS & LEGENDS/LORE -->
+          <h2 id="plays-legends" class="category-title">Plays &amp; Legends/Lore <span class="pill">5 Pillars</span></h2>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Concept &amp; Impact</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the work present a striking or memorable concept, theme, or mythic idea?</li>
+                <li>Did it explore universal truths, moral lessons, or cultural values in a fresh or compelling way?</li>
+                <li>Did it leave a strong impression on you after finishing/experiencing it?</li>
+                <li>Did it provoke reflection, deeper questioning, or re-reading/re-watching to grasp its layers?</li>
+                <li>Did it communicate something meaningful, provocative, or timeless within its form?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Character, Voice &amp; Emotion</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the characters (or archetypes) feel emotionally real, symbolic, or resonant?</li>
+                <li>Were you able to care about, empathize with, or be intrigued by the characters quickly?</li>
+                <li>Did the relationships, conflicts, or symbolic roles feel believable, moving, or thematically rich?</li>
+                <li>Were motivations, choices, and consequences conveyed clearly without excessive exposition?</li>
+                <li>Did the characters (or symbolic figures) change, reveal something deep, or stay with you after?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Engagement, Atmosphere &amp; Performance</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Did the opening (or prologue/oral hook) immediately capture your attention?</li>
+                <li>Did the pacing, rhythm, or stakes feel engaging—whether read, performed, or told aloud?</li>
+                <li>Was the atmosphere, setting, or world vividly conveyed?</li>
+                <li>Did you feel immersed—emotionally, imaginatively, or communally—in the story?</li>
+                <li>Were there moments of surprise, beauty, tension, or resonance that stood out?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Structure, Tradition &amp; Execution</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the chosen structure (linear, episodic, cyclical, framed, oral formulaic) effective for the story?</li>
+                <li>Did the ending feel earned—whether conclusive, ambiguous, or open to interpretation?</li>
+                <li>Was the work cohesive and thoughtfully arranged, even if part of a larger tradition or cycle?</li>
+                <li>Did individual scenes, episodes, or tales feel distinctive yet aligned with the whole?</li>
+                <li>Did the work make strong use of its medium (brevity in short stories, dialogue/action in plays, oral compression/repetition in legends/lore)?</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <strong>Language, Style &amp; Cultural Resonance</strong>
+             
+            </div>
+            <div class="section-body">
+              <ul>
+                <li>Was the language tight, purposeful, or artfully crafted (whether prose, verse, or oral cadence)?</li>
+                <li>Did the style evoke emotion, imagery, or insight without excess?</li>
+                <li>Were literary or performative devices (metaphor, irony, chorus, repetition, symbolism) used effectively?</li>
+                <li>Did the style and voice fit the emotional weight, cultural context, or themes of the piece?</li>
+                <li>Did the voice feel confident, distinct, or enduring across time and retelling?</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Header injection (same pattern as your other pages) -->
+    <script>
+      fetch("header.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
+          if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+            const header = document.querySelector("header");
+            if (header) header.classList.add("dev");
+          }
+        });
+    </script>
+
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+  </body>
+</html>
