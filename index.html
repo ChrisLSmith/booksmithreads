@@ -32,54 +32,18 @@
     <div id="header-placeholder"></div>
 
     <main class="container">
-      <div id="dashboard-section" class="row mb-4">
-        <div class="col-md-6">
-          <div class="p-4 bg-light border rounded h-100 text-center">
-            <div
-              style="
-                font-size: 1rem;
-                text-transform: uppercase;
-                color: #777;
-                margin-bottom: 0.5rem;
-              "
-            >
-              Currently Reading
-            </div>
-            <div
-              id="current-title"
-              style="font-size: 1.5rem; font-weight: bold"
-            ></div>
-            <div id="current-author" style="font-size: 1rem; color: #555"></div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="p-4 bg-light border rounded h-100 text-center">
-            <div style="font-size: 1.2rem; font-weight: bold">
-              Books I've Read This Year
-            </div>
-            <div
-              id="year-count"
-              style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem"
-            >
-              0
-            </div>
-          </div>
-        </div>
-      </div>
-
       <h1>Books I've Read</h1>
       <table id="books-table" class="table">
         <thead>
           <tr>
             <th>Book Title</th>
             <th>Author</th>
-            <th>Year Read</th>
             <th>Rating</th>
           </tr>
         </thead>
         <tbody id="books-body">
           <tr id="loading-row">
-            <td colspan="4" style="text-align: center; padding: 2rem">
+            <td colspan="3" style="text-align: center; padding: 2rem">
               <div class="spinner-border text-primary" role="status"></div>
               <div style="margin-top: 0.5rem">Loading books...</div>
             </td>
@@ -143,7 +107,7 @@
         const loadingRow = document.getElementById("loading-row");
         if (loadingRow) loadingRow.remove();
 
-        // Sort by date read descending
+        // Sort by date read descending (uses Log!D, not displayed)
         data.sort((a, b) => {
           const dateA = new Date(a[3] || "1900-01-01");
           const dateB = new Date(b[3] || "1900-01-01");
@@ -156,7 +120,6 @@
           const title = row[0] || "Unknown Title";
           const author = row[1] || "Unknown Author";
           const dateRead = row[3];
-          const year = row[5] || "";
           const rating = row[6] || "";
 
           let isNew = false;
@@ -169,18 +132,13 @@
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-         <td>
-           <a href="${buildBookUrl(title)}">${title}</a>
-           ${
-             isNew
-               ? '<span style="color:red; font-weight:bold; margin-left:6px;">🆕 New!</span>'
-               : ""
-           }
-         </td>
-         <td>${author}</td>
-         <td>${year}</td>
-         <td>${rating}</td>
-       `;
+            <td>
+              <a href="${buildBookUrl(title)}">${title}</a>
+              ${isNew ? '<span style="color:red; font-weight:bold; margin-left:6px;">🆕 New!</span>' : ""}
+            </td>
+            <td>${author}</td>
+            <td>${rating}</td>
+          `;
           tbody.appendChild(tr);
         });
 
@@ -189,12 +147,12 @@
           paging: true,
           searching: true,
           ordering: false,
-          order: [], // Don't override your custom JS sort
+          order: [],
           language: {
             searchPlaceholder: "Search books...",
             search: "",
           },
-          dom: "ftlip", // Move the length dropdown to the bottom
+          dom: "ftlip",
         });
       }
 
@@ -248,36 +206,28 @@
           fetchSheetData(logRange),
         ]);
 
-        // Get title from dashboard
-        const currentTitle =
-          dashboardData[0]?.[0] || "No book currently selected";
-        document.getElementById("current-title").textContent = currentTitle;
+        // The elements referenced below may not exist on this page anymore.
+        // Leaving logic as-is to preserve your structure; harmless if elements are missing.
+        const currentTitle = dashboardData[0]?.[0] || "No book currently selected";
+        const titleEl = document.getElementById("current-title");
+        if (titleEl) titleEl.textContent = currentTitle;
 
-        // Match against column B (index 1)
         let bookRow = booksData.find(
-          (row) =>
-            row[1]?.trim().toLowerCase() === currentTitle.trim().toLowerCase()
+          (row) => row[1]?.trim().toLowerCase() === currentTitle.trim().toLowerCase()
         );
-
-        // Fallback: partial match (just in case)
         if (!bookRow) {
           bookRow = booksData.find((row) =>
-            currentTitle
-              .trim()
-              .toLowerCase()
-              .includes(row[1]?.trim().toLowerCase())
+            currentTitle.trim().toLowerCase().includes(row[1]?.trim().toLowerCase())
           );
         }
 
-        // Author is in column C (index 2)
         const author = bookRow?.[2] || "Unknown Author";
-        document.getElementById("current-author").textContent = `by ${author}`;
+        const authorEl = document.getElementById("current-author");
+        if (authorEl) authorEl.textContent = `by ${author}`;
 
-        // Count books read this year from Log sheet (Column F = year)
-        const thisYearCount = logData.filter(
-          (row) => row[5] == currentYear
-        ).length;
-        document.getElementById("year-count").textContent = thisYearCount;
+        const thisYearCount = logData.filter((row) => row[5] == currentYear).length;
+        const countEl = document.getElementById("year-count");
+        if (countEl) countEl.textContent = thisYearCount;
       }
 
       loadDashboard();
@@ -297,9 +247,7 @@
             const title = row[0];
             const year = row[5];
             const rating = parseFloat(row[6]);
-            return (
-              title && !isNaN(rating) && (!filterYear || year == filterYear)
-            );
+            return title && !isNaN(rating) && (!filterYear || year == filterYear);
           });
 
           const top = filtered
@@ -309,8 +257,7 @@
           return top.map((row) => {
             const title = row[0];
             const match = booksData.find(
-              (book) =>
-                book[1]?.trim().toLowerCase() === title.trim().toLowerCase()
+              (book) => book[1]?.trim().toLowerCase() === title.trim().toLowerCase()
             );
             const author = match?.[2] || "Unknown Author";
             return { title, author, rating: row[6] };
@@ -325,9 +272,9 @@
             li.classList.add("mb-3");
             const bookUrl = `book.html?title=${encodeURIComponent(book.title)}`;
             li.innerHTML = `
-    <strong>${index + 1}. <a href="${bookUrl}">${book.title}</a></strong><br>
-    <span style="color: #555;">by ${book.author}</span>
-  `;
+              <strong>${index + 1}. <a href="${bookUrl}">${book.title}</a></strong><br>
+              <span style="color: #555;">by ${book.author}</span>
+            `;
             ul.appendChild(li);
           });
         }
