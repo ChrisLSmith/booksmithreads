@@ -132,6 +132,10 @@
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
+            <td>
+              <a href="${buildBookUrl(title)}">${title}</a>
+              ${isNew ? '<span style="color:red; font-weight:bold; margin-left:6px;">🆕 New!</span>' : ""}
+            </td>
             <td>${author}</td>
             <td>${rating}</td>
           `;
