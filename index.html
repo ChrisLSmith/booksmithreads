@@ -7,7 +7,6 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-P8521TN3E4');
     </script>
     <meta charset="UTF-8" />
@@ -107,42 +106,28 @@
         const loadingRow = document.getElementById("loading-row");
         if (loadingRow) loadingRow.remove();
 
-        // Sort by date read descending (uses Log!D, not displayed)
+        // Sort by date read descending
         data.sort((a, b) => {
           const dateA = new Date(a[3] || "1900-01-01");
           const dateB = new Date(b[3] || "1900-01-01");
           return dateB - dateA;
         });
 
-        const today = new Date();
-
         data.forEach((row) => {
           const title = row[0] || "Unknown Title";
           const author = row[1] || "Unknown Author";
-          const dateRead = row[3];
           const rating = row[6] || "";
-
-          let isNew = false;
-          if (dateRead) {
-            const readDate = new Date(dateRead);
-            const timeDiff = today - readDate;
-            const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-            isNew = daysDiff <= 5 && daysDiff >= 0;
-          }
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>
-              <a href="${buildBookUrl(title)}">${title}</a>
-              ${isNew ? '<span style="color:red; font-weight:bold; margin-left:6px;">🆕 New!</span>' : ""}
-            </td>
+            <td><a href="${buildBookUrl(title)}">${title}</a></td>
             <td>${author}</td>
             <td>${rating}</td>
           `;
           tbody.appendChild(tr);
         });
 
-        // Initialize DataTables after rendering
+        // Initialize DataTables
         $("#books-table").DataTable({
           paging: true,
           searching: true,
@@ -165,7 +150,6 @@
         .then((data) => {
           document.getElementById("header-placeholder").innerHTML = data;
 
-          // ✅ Run this *after* header.html is injected
           if (
             location.hostname === "localhost" ||
             location.hostname === "127.0.0.1"
@@ -178,7 +162,7 @@
         });
     </script>
 
-    <!-- jQuery (required for DataTables) -->
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
     <!-- DataTables JS -->
@@ -206,18 +190,22 @@
           fetchSheetData(logRange),
         ]);
 
-        // The elements referenced below may not exist on this page anymore.
-        // Leaving logic as-is to preserve your structure; harmless if elements are missing.
-        const currentTitle = dashboardData[0]?.[0] || "No book currently selected";
+        const currentTitle =
+          dashboardData[0]?.[0] || "No book currently selected";
         const titleEl = document.getElementById("current-title");
         if (titleEl) titleEl.textContent = currentTitle;
 
         let bookRow = booksData.find(
-          (row) => row[1]?.trim().toLowerCase() === currentTitle.trim().toLowerCase()
+          (row) =>
+            row[1]?.trim().toLowerCase() ===
+            currentTitle.trim().toLowerCase()
         );
         if (!bookRow) {
           bookRow = booksData.find((row) =>
-            currentTitle.trim().toLowerCase().includes(row[1]?.trim().toLowerCase())
+            currentTitle
+              .trim()
+              .toLowerCase()
+              .includes(row[1]?.trim().toLowerCase())
           );
         }
 
@@ -225,7 +213,9 @@
         const authorEl = document.getElementById("current-author");
         if (authorEl) authorEl.textContent = `by ${author}`;
 
-        const thisYearCount = logData.filter((row) => row[5] == currentYear).length;
+        const thisYearCount = logData.filter(
+          (row) => row[5] == currentYear
+        ).length;
         const countEl = document.getElementById("year-count");
         if (countEl) countEl.textContent = thisYearCount;
       }
@@ -257,7 +247,9 @@
           return top.map((row) => {
             const title = row[0];
             const match = booksData.find(
-              (book) => book[1]?.trim().toLowerCase() === title.trim().toLowerCase()
+              (book) =>
+                book[1]?.trim().toLowerCase() ===
+                title.trim().toLowerCase()
             );
             const author = match?.[2] || "Unknown Author";
             return { title, author, rating: row[6] };
@@ -270,9 +262,13 @@
           books.forEach((book, index) => {
             const li = document.createElement("li");
             li.classList.add("mb-3");
-            const bookUrl = `book.html?title=${encodeURIComponent(book.title)}`;
+            const bookUrl = `book.html?title=${encodeURIComponent(
+              book.title
+            )}`;
             li.innerHTML = `
-              <strong>${index + 1}. <a href="${bookUrl}">${book.title}</a></strong><br>
+              <strong>${index + 1}. <a href="${bookUrl}">${
+              book.title
+            }</a></strong><br>
               <span style="color: #555;">by ${book.author}</span>
             `;
             ul.appendChild(li);
