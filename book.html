@@ -7,7 +7,6 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-P8521TN3E4');
   </script>
   <meta charset="UTF-8" />
@@ -117,7 +116,7 @@
   <main>
     <div class="cover-container">
       <div id="cover-spinner" class="spinner-border text-secondary" role="status"></div>
-      <img id="book-cover" />
+      <img id="book-cover" alt="Book cover"/>
     </div>
 
     <div class="review-container">
@@ -146,8 +145,8 @@
     const isbnDbKey = '62658_3089370964ba71ca03bd57a1cdfad0bd';
 
     const titleParam = new URLSearchParams(window.location.search).get('title');
-    const decodedTitle = decodeURIComponent(titleParam);
-    document.getElementById('book-title').textContent = decodedTitle;
+    const decodedTitle = decodeURIComponent(titleParam || '');
+    document.getElementById('book-title').textContent = decodedTitle || 'Book Title';
 
     const reviewsRange = 'Reviews!A2:E';
     const booksRange = 'Books!A2:H';
@@ -178,21 +177,36 @@
     }
 
     async function fetchSheetData(range) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
       const response = await fetch(url);
       const data = await response.json();
       return data.values || [];
     }
 
     async function fetchISBNFromOpenLibrary(title) {
+      if (!title) return null;
       const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
       const response = await fetch(url);
       const data = await response.json();
-      const doc = data.docs.find(d => d.isbn?.length);
+      const doc = data.docs?.find(d => d.isbn?.length);
       const isbn13 = doc?.isbn?.find(code => code.length === 13 && code.startsWith("978"));
       return isbn13 || null;
     }
 
+    // NEW: Check /images/<ISBN>.png first (same-origin)
+    async function checkLocalCover(isbn) {
+      if (!isbn) return null;
+      const localUrl = `/images/${isbn}.png`;
+      try {
+        const res = await fetch(localUrl, { method: 'HEAD', cache: 'no-store' });
+        if (res.ok) return localUrl;
+      } catch (e) {
+        // Ignore network errors and fall through to other sources
+      }
+      return null;
+    }
+
+    // Try sources in order: Local /images -> ISBNdb -> OpenLibrary -> alt ISBN -> placeholder
     async function tryLoadCover(isbn, books, title, triedFallback = false) {
       const placeholder = "https://via.placeholder.com/200x300?text=";
 
@@ -201,30 +215,52 @@
         return;
       }
 
+      // 1) LOCAL IMAGE FIRST
+      const localUrl = await checkLocalCover(isbn);
+      if (localUrl) {
+        showCover(localUrl);
+        return;
+      }
+
+      // 2) ISBNdb
       try {
         const res = await fetch(`https://api2.isbndb.com/book/${isbn}`, {
           headers: { "Authorization": isbnDbKey }
         });
         const data = await res.json();
-
         if (data.book?.image) {
           showCover(data.book.image);
-        } else if (!triedFallback) {
-          const altEntry = books.find(row =>
-            clean(row[1]) === clean(title) && row[3] && row[3] !== isbn
-          );
-          if (altEntry) {
-            await tryLoadCover(altEntry[3], books, title, true);
-          } else {
-            showCover(placeholder + "No+Cover");
-          }
-        } else {
-          showCover(placeholder + "No+Cover");
+          return;
         }
       } catch (error) {
         console.error("❌ ISBNdb fetch failed:", error);
-        showCover(placeholder + "No+Cover");
       }
+
+      // 3) OpenLibrary cover (only after local + ISBNdb miss)
+      try {
+        const olUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+        const head = await fetch(olUrl, { method: 'HEAD', cache: 'no-store' });
+        if (head.ok) {
+          showCover(olUrl);
+          return;
+        }
+      } catch (e) {
+        // ignore and continue
+      }
+
+      // 4) Try alternate ISBN from Books (same title, different ISBN) ONCE
+      if (!triedFallback && Array.isArray(books)) {
+        const altEntry = books.find(row =>
+          clean(row[1]) === clean(title) && row[3] && row[3] !== isbn
+        );
+        if (altEntry) {
+          await tryLoadCover(altEntry[3], books, title, true);
+          return;
+        }
+      }
+
+      // 5) Give up: placeholder
+      showCover(placeholder + "No+Cover");
     }
 
     async function loadBookData() {
@@ -261,8 +297,10 @@
             star.classList.add("filled");
           } else if (i === Math.ceil(ratingFloat)) {
             const fraction = ratingFloat % 1;
-            star.classList.add("partial");
-            star.style.setProperty('--fill', `${fraction * 100}%`);
+            if (fraction > 0) {
+              star.classList.add("partial");
+              star.style.setProperty('--fill', `${fraction * 100}%`);
+            }
           }
 
           starContainer.appendChild(star);
@@ -292,14 +330,13 @@
       .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
 
-      if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-        const header = document.querySelector("header");
-        if (header) {
-          header.classList.add("dev");
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+          const header = document.querySelector("header");
+          if (header) header.classList.add("dev");
         }
-      }
       });
   </script>
+
   <div id="footer-placeholder"></div>
   <script>
     fetch("footer.html")
@@ -308,6 +345,5 @@
         document.getElementById("footer-placeholder").innerHTML = data;
       });
   </script>
-
 </body>
 </html>
